@@ -4,12 +4,25 @@ This directory contains scripts and instructions to run a mock genome-wide assoc
 
 ## Generate data
 
-Go to the `data/simulated_sites/` directory and follow the instructions in its README to generate synthetic genotype and phenotype data for multiple sites.
+Go to the `data/simulated_sites/` directory and follow the instructions in its README.md file to generate synthetic genotype and phenotype data for multiple sites.
 
-The .logistic files in this directory were created using `generate_federated_sites.sh` script in `data/simulated_sites/`, sites 1 and 2 only, downscaling the number of samples and SNPs by one order of magnitude for faster testing.
+The input files assumed here by the `run_gwas.sh` script were first created using `generate_federated_sites.sh` script in `data/simulated_sites/`, sites 1 and 2 only, downscaling the number of samples and SNPs by one order of magnitude for faster testing.
 
 ## Run GWAS
 
+Run GWAS analysis with PLINK2 (https://www.cog-genomics.org/plink/2.0/) with some minor conversion steps with Python. 
+These deps can easily be installed via conda
+
+```{bash}
+conda create -n gwas_env python=3.12 pandas
+conda activate gwas_env
+echo $CONDA_PREFIX
+```
+
+Download and install the `plink2` binary file for your OS from https://www.cog-genomics.org/plink/2.0/ in the `$CONDA_PREFIX/bin/` directory so that it is available in your PATH.
+
+
+# run the GWAS analysis
 ```{bash}
 cd data/run_mock_gwas_w_plink
 bash run_gwas.sh
