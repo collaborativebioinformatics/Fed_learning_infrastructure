@@ -17,6 +17,7 @@ for site in 1 2; do
     export SITE="site${site}"
     plink --bfile ${DATA_PATH}/${SITE}/site${site}_geno \
         --logistic \
+        --ci 0.95 \
         --pheno ${DATA_PATH}/${SITE}/site${site}_pheno_recoded.pheno \
         --pheno-name Phen1 \
         --all-pheno \
