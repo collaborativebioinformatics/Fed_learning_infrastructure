@@ -217,3 +217,19 @@ __marimo__/
 
 # Misc.
 .DS_Store
+
+# Genomic simulation data (large files - do not commit)
+data/simulated_sites/site*/
+*.bed
+*.bim
+*.fam
+*.pheno
+*.covar
+*.effects
+*.breeding
+*.liab
+
+# LDAK binary
+ldak6.1.mac
+ldak*.linux
+ldak*.mac
