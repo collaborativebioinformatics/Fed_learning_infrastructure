@@ -7,7 +7,7 @@ Federated Learning (FL) Infrastructure &amp; Synthetic Data
 1. Holger Roth
 2. Pravesh Parekh
 3. Srikant Sarangi
-4. Enamul Shimul
+4. Md Enamul Hoq
 5. Espen Hagen
 6. Mariona Jaramillo Civill
 7. Ioannis Christofilogiannis
