@@ -16,5 +16,5 @@ bash run_gwas.sh
 ```
 
 The `map_pheno.py` script is used to recode the phenotype values from 0/1 to 1/2 as required by PLINK for case/control studies.
-
+The `merge_gwas_results.py` script merges the allele frequency data from the `.afreq` files with the logistic regression results from the `.glm.logistic` files to create input files suitable for GWAMA meta-analysis.
 
