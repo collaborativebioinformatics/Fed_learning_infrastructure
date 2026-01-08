@@ -21,10 +21,8 @@ The goal of this project is to establish a realistic and extensible experimental
 
 ## Methods
 1. Explain the synthetic data generation process
-    - Tool used
-    - Client-specific params to create diversity
-    - Imbalances
-    - Skewness
+We generated realistic synthetic dataset for 10 different sites using the LDAK software [https://dougspeed.com/downloads/]. Specifically, the simulated phenotype was a case-control phenotype representing the case status of having Parkinson's Disease with a realistic population prevalence rate of 1%, single nucleotide polymorphism (SNP) heritability of 0.25 (on a liability scale), 20 causal SNPs per site, and using the "LDAK-Thin" effect size model with a power of -0.25. For each site, the covariates included age and sex that overall explained ~10% of the phenotypic variance. For the genotype simulation., we allowed the number of SNPs to vary between ~450,000 to ~520,000 variants per site while the sample size per site varied between 88,000 and 110,000. This resulted in synthetic data across 10 sites with varied number of subjects, slightly different number of genotyped SNPs, and different distributions of age and sex. The code for simulation can easily be modified to introduce further imbalance/skewness with respect to sample size, number of SNPs, or even introduce differences in the number of causal variants per site.
+<img src="./resources/Methods_simulationDetails.svg" alt="Parameters for generating synthetic data" width="300" height="300">
 2. Explain the federated learning strategy
     - Spin up process on AWS. Install necessary requiremets on venv like nvflare, docker, etc.
     - Spin up processes on Brev (10 clients)
