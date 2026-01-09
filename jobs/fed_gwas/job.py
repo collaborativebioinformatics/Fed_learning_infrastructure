@@ -141,7 +141,7 @@ class GWASMetaAggregator(ModelAggregator):
         """
 
         if self.simple_meta_analysis:
-            # Simple meta-analysis
+            # Simple meta-analysis TODO: allow stacking of different data shapes
             betas = np.stack(self.client_betas, axis=0)  # (K, P)
             ses = np.stack(self.client_ses, axis=0)      # (K, P)
 
@@ -156,7 +156,7 @@ class GWASMetaAggregator(ModelAggregator):
             aggregated_params = {
                 "beta": meta_beta,
                 "se": meta_se,
-                "SIMPLE_META_ANALYSIS_COMPLETED": False,
+                "SIMPLE_META_ANALYSIS_COMPLETED": True,
             }
 
             print(f"Aggregated beta: {meta_beta}")
