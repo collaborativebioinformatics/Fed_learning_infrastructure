@@ -235,9 +235,9 @@ Monitor logs and outputs to confirm successful completion.
 ## Federated Design
 
 ```
-┌─────────────────────────────────────────────────┐
-│         FL Server (NVIDIA FLARE on AWS)          │
-│         (aggregates summary statistics)          │
+┌────────────────────────────────────────────────┐
+│         FL Server (NVIDIA FLARE on AWS)        │
+│         (aggregates summary statistics)        │
 └───────┬─────────┬─────────┬──────────┬─────────┘
         │         │         │          │
     ┌───▼───┐ ┌──▼────┐ ┌──▼────┐  ┌──▼────┐
