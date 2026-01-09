@@ -9,6 +9,7 @@ This container automates GWAS meta-analysis using GWAMA, converting REGENIE outp
 - Docker installed
 - REGENIE output files (.regenie format) from each site
 
+
 ### Basic Usage
 
 ```bash
@@ -19,7 +20,25 @@ docker run --platform=linux/amd64 \
   -o /out <mode> <output_prefix> <site1_regenie> [site2_regenie] ...
 ```
 
-docker run --platform=linux/amd64 -v /Users/espehage/Repositories/Fed_learning_infrastructure/resources/site1_gwas_results:/data -it ghcr.io/collaborativebioinformatics/gwama or gwama_meta /data/regenie_step2_Phen1.regenie
+**Example usage:** (using binary trait GWAS in this repository)
+
+```{bash}
+# build the Docker image locally
+cd scripts/run_gwama
+docker build --platform=linux/amd64 -t ghcr.io/collaborativebioinformatics/gwama -f Dockerfile.gwama .
+
+# run (help function)
+docker run --platform=linux/amd64 \
+    -it ghcr.io/collaborativebioinformatics/gwama --help
+...
+
+# run (example) - should put output in working directory 
+docker run --platform=linux/amd64 \
+    -v <path/to/FedGen>/resources/site1_gwas_results:/data \
+    -v <path/to/FedGen>/scripts/run_gwama/:/out \
+    -it ghcr.io/collaborativebioinformatics/gwama -o /out or gwama_meta /data/regenie_step2_Phen1.regenie
+```
+
 
 **Arguments:**
 - `mode`: `or` for binary traits or `qt` for quantitative traits
