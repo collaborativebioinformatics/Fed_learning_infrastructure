@@ -25,7 +25,9 @@
 
 # Quickstart -- Server and Clients Configuration
 
-## 1. Start NVFLARE Dashboard on AWS
+## 1. Start NVFLARE Dashboard and FL Server on AWS
+
+### 1.1 Start NVFLARE Dashboard
 
 Follow the official NVFLARE documentation exactly:
 
@@ -35,11 +37,32 @@ Follow the official NVFLARE documentation exactly:
 High‑level summary:
 
 * Create required AWS resources (EC2, security groups, IAM role)
+* **Used instance type:** `t2.large`
 * Install Docker & NVFLARE Dashboard
 * Expose dashboard ports (typically 443 / 8443)
 * Verify dashboard access from browser
 
 > Refer to the official docs for the authoritative and up‑to‑date AWS steps.
+
+---
+
+### 1.2 Start NVFLARE FL Server
+
+After the dashboard is running, download the server startup kit and start the NVFLARE FL server on AWS:
+
+📖 **NVFLARE Cloud Deployment – Start FL Server**
+[https://nvflare.readthedocs.io/en/2.4/real_world_fl/cloud_deployment.html#deploy-fl-server-in-the-cloud](https://nvflare.readthedocs.io/en/2.4/real_world_fl/cloud_deployment.html#deploy-fl-server-in-the-cloud)
+
+High‑level summary:
+
+* **Used instance type:** `i3en.3xlarge` (supports larger memory consumption when aggregating summary statistics)
+* Download server startup kit from dashboard
+* Copy startup kit to AWS EC2 instance
+* Extract and navigate to server directory
+* Run `./startup/start.sh` to start the FL server
+* Verify server is running and ready to accept client connections
+
+> The FL server coordinates federated learning jobs across all client sites.
 
 ---
 
