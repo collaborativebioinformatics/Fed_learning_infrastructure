@@ -327,7 +327,22 @@ Our approach allows users to perform both types of meta-analyses.
 
 ## Future Direction
 
-[Future directions to be completed]
+Future Directions:
+
+1. Synthetic Data Generation
+- Incorporate additional skewness parameters such as class imbalance and different missingness patterns in phenotype, genotype, and covariates
+- Support more complex phenotype generation such as repeated measurements with time-varying heritability, different proportions of variances explained including noise), and additional covariates
+
+
+2. Federated Learning Strategy
+- Improved monitoring (dashboard):
+	- different performance timing based on site-specific data imbalance
+	- return monitoring information through tensorboard
+- Explore additional learning strategies (including different GWAS software) and best practices like leave-site-out cross-validation
+
+3. Meta-Analysis (Aggregation)
+- More robust compatibility block to account for different output from different learning strategies
+- Explore iterative meta-analysis which incorporates cross-validation learning
 
 ---
 
