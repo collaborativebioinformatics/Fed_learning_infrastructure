@@ -61,6 +61,9 @@ SNP3	A	C	-9	1.016838	0.058183	0.902800	1.145280	0.275127	0.783218	0.106117	0.000
 ...
 ```
 
+Please refer to https://genomics.ut.ee/en/tools for more details on interpreting GWAMA output files.
+
+
 ## Run GWAMA meta-analysis (test with mock data)
 
 ### run GWAS for each site (mock up data)
@@ -104,4 +107,10 @@ SNP1	A	C	-9	0.884922	0.097971	0.692897	1.130162	-0.979582	0.327281	0.485080	0.24
 SNP2	A	C	-9	0.976209	0.136775	0.708129	1.345777	-0.146998	0.883115	0.053983	0.321468	0.570727	0.000000	2	-9	+-
 SNP3	A	C	-9	0.969469	0.122319	0.729723	1.287981	-0.213930	0.830592	0.080612	0.674754	0.411399	0.000000	2	-9	-+
 ...
-``` 
+```
+
+Please refer to https://genomics.ut.ee/en/tools for more details on interpreting GWAMA output files.
+
+## References
+
+Mägi R, Morris AP. GWAMA: software for genome-wide association meta-analysis. BMC Bioinformatics. 2010 May 28;11:288. doi: 10.1186/1471-2105-11-288. PMID: 20509871; PMCID: PMC2893603.
