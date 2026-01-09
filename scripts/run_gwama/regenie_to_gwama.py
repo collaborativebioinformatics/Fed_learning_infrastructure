@@ -38,7 +38,7 @@ def parse_args():
 def main():
     args = parse_args()
 
-    gwas = pd.read_csv(args.input, sep="\s+")
+    gwas = pd.read_csv(args.input, sep="\\s+")
     if args.mode == 'or':
         z_score = norm.ppf(0.975) # 97.5 percentile
         gwas['OR'] = np.exp(gwas['BETA'])

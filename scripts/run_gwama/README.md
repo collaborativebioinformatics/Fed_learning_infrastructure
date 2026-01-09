@@ -1,10 +1,138 @@
-# Run GWAMA meta-analysis
+# GWAMA Meta-Analysis Docker Container
 
-## Download and build GWAMA
+This container automates GWAS meta-analysis using GWAMA, converting REGENIE output to the required GWAMA format and performing meta-analysis across multiple sites.
 
-The `GWAMA` binary need to exist on the server site where the meta-analysis is run.
+## Quick Start
+
+### Prerequisites
+
+- Docker installed
+- REGENIE output files (.regenie format) from each site
+
+
+### Basic Usage
+
+```bash
+docker run --platform=linux/amd64 \
+  -v /path/to/data:/data \
+  -v /path/to/output:/out \
+  ghcr.io/collaborativebioinformatics/gwama \
+  -o /out <mode> <output_prefix> <site1_regenie> [site2_regenie] ...
+```
+
+**Example usage:** (using binary trait GWAS in this repository)
 
 ```{bash}
+# build the Docker image locally
+cd scripts/run_gwama
+docker build --platform=linux/amd64 -t ghcr.io/collaborativebioinformatics/gwama -f Dockerfile.gwama .
+
+# run (help function)
+docker run --platform=linux/amd64 \
+    -it ghcr.io/collaborativebioinformatics/gwama --help
+...
+
+# run (example) - should put output in working directory 
+docker run --platform=linux/amd64 \
+    -v <path/to/FedGen>/resources/site1_gwas_results:/data \
+    -v <path/to/FedGen>/scripts/run_gwama/:/out \
+    -it ghcr.io/collaborativebioinformatics/gwama -o /out or gwama_meta /data/regenie_step2_Phen1.regenie
+```
+
+
+**Arguments:**
+- `mode`: `or` for binary traits or `qt` for quantitative traits
+- `output_prefix`: Prefix for output files
+- `regenie_files`: Paths to REGENIE output files (use absolute paths)
+
+### Example: Binary Trait (Case-Control)
+
+```bash
+docker run --platform=linux/amd64 \
+  -v /Users/espehage/resources:/data \
+  -v /Users/espehage/output:/out \
+  ghcr.io/collaborativebioinformatics/gwama \
+  -o /out or meta_analysis /data/site1.regenie /data/site2.regenie /data/site3.regenie
+```
+
+### Example: Quantitative Trait
+
+```bash
+docker run --platform=linux/amd64 \
+  -v /Users/espehage/resources:/data \
+  -v /Users/espehage/output:/out \
+  ghcr.io/collaborativebioinformatics/gwama \
+  -o /out qt meta_results /data/site1.regenie /data/site2.regenie
+```
+
+## Important: Volume Mounting
+
+The container **cannot access relative paths** from the host. You must:
+
+1. Use **absolute paths** to data files
+2. Mount directories with `-v /host/absolute/path:/container/path`
+3. Reference files by their mounted paths inside the container
+
+**❌ This will fail (relative paths don't work in containers):**
+```bash
+docker run ... gwama or meta ../../resources/site1.regenie
+```
+
+**✅ This works (absolute path or mounted volume):**
+```bash
+docker run -v /Users/espehage/resources:/data ... gwama or meta /data/site1.regenie
+```
+
+## Output Files
+
+Results are saved in the container's `/home/` directory by default, or in the directory specified with `-o/--outdir`.
+
+- `<output_prefix>.out` - Main GWAMA meta-analysis results
+- `<output_prefix>.err.out` - Error log from GWAMA
+- `<output_prefix>.in` - GWAMA input file list
+- `<output_prefix>_site*.txt` - Converted GWAMA format files per site
+
+To access results from your host, mount an output volume:
+
+```bash
+docker run --platform=linux/amd64 \
+  -v /data/gwas:/input \
+  -v /data/output:/out \
+  ghcr.io/collaborativebioinformatics/gwama \
+  -o /out or meta /input/site1.regenie /input/site2.regenie
+```
+
+Then retrieve results from `/output/`.
+
+## Help
+
+View the help message:
+
+```bash
+docker run ghcr.io/collaborativebioinformatics/gwama --help
+```
+
+## Building Locally
+
+```bash
+cd scripts/run_gwama
+docker build --platform=linux/amd64 -t gwama:local -f Dockerfile.gwama .
+docker run gwama:local or meta /data/site1.regenie
+```
+
+## Pipeline Steps
+
+The entrypoint automatically:
+
+1. **Converts** each site's REGENIE output to GWAMA format using `regenie_to_gwama.py`
+2. **Creates** GWAMA input file list
+3. **Runs** GWAMA meta-analysis with appropriate parameters for the trait type
+
+## Manual Setup (if not using Docker)
+
+### Download and build GWAMA
+
+```bash
 wget https://www.geenivaramu.ee/tools/GWAMA_v2.2.2.zip
 unzip -d GWAMA GWAMA_v2.2.2.zip
 cd GWAMA
@@ -13,26 +141,22 @@ chmod +x GWAMA
 cd ..
 ```
 
-## Run GWAMA meta-analysis (Regenie data format)
-
 ### Convert Regenie output to GWAMA input format
 
-```{bash}
+```bash
 export SITE=1
 export DATA_PATH="../../resources/site${SITE}_gwas_results"
 export FILEPREFIX="regenie_step2_Phen1.regenie"
 
-python3 regenie_to_gwama.py  \
+python3 regenie_to_gwama.py \
     "${DATA_PATH}/${FILEPREFIX}" \
     "site${SITE}_for_gwama.txt" \
     "or"
 ```
 
-### create input file list for GWAMA
+### Create input file list for GWAMA
 
-Should contain data from all 10 sites, here shown for site 1 only for brevity.
-
-```{bash}
+```bash
 echo site1_for_gwama.txt > gwama.in
 ```
 

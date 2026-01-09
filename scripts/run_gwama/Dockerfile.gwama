@@ -1,0 +1,39 @@
+FROM ubuntu:24.04
+
+# install system dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    python3>=2.2.0 \
+    python3-pandas>=1.26.0 \
+    python3-scipy>=1.12.0 \
+    wget \
+    unzip \
+    zlib1g-dev \
+    build-essential \
+    && \
+    apt-get clean \
+    && \
+    rm -rf /var/lib/apt/lists/*
+
+# install GWAMA
+WORKDIR /tmp
+RUN wget --no-check-certificate https://www.geenivaramu.ee/tools/GWAMA_v2.2.2.zip && \
+    unzip -d GWAMA GWAMA_v2.2.2.zip && \
+    cd GWAMA && \
+    make && \
+    chmod +x GWAMA && \
+    mv GWAMA /usr/local/bin/ && \
+    cd .. && \
+    rm -rf GWAMA GWAMA_v2.2.2.zip
+
+# copy conversion script and entrypoint
+WORKDIR /tools
+COPY regenie_to_gwama.py .
+COPY entrypoint.gwama.sh .
+RUN chmod +x regenie_to_gwama.py entrypoint.gwama.sh
+
+# Set entrypoint
+ENTRYPOINT ["/tools/entrypoint.gwama.sh"]
+CMD ["--help"]
+
+WORKDIR /home
