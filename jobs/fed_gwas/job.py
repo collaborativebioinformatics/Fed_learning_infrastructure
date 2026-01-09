@@ -218,6 +218,12 @@ def define_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument("--n_clients", type=int, default=10)
     parser.add_argument("--num_rounds", type=int, default=1)
+    parser.add_argument("--env", type=str, default="prod", choices=["sim", "prod"],
+                        help="Environment to run in: 'sim' for SimEnv or 'prod' for ProdEnv (default: prod)")
+    parser.add_argument("--startup_kit", type=str, default="/home/ubuntu/hroth@nvidia.com",
+                        help="Startup kit location for ProdEnv (default: /home/ubuntu/hroth@nvidia.com)")
+    parser.add_argument("--username", type=str, default="hroth@nvidia.com",
+                        help="Username for ProdEnv (default: hroth@nvidia.com)")
 
     return parser.parse_args()
 
@@ -240,11 +246,15 @@ def main():
     # Send the regenie script to all clients
     recipe.job.to_clients("client_regenie.sh")
 
-    # Simulation Environment (FL Server and clients on same NVIDIA Brev instance)
-    # env = SimEnv(num_clients=n_clients)
-    
-    # Production Environment (FL Server on AWS and clients on NVIDIA Brev)
-    env = ProdEnv(startup_kit_location="/home/ubuntu/hroth@nvidia.com", username="hroth@nvidia.com", login_timeout=300)
+    # Select environment based on command-line argument
+    if args.env == "sim":
+        print(f"Using Simulation Environment with {n_clients} clients")
+        env = SimEnv(num_clients=n_clients)
+    else:
+        print(f"Using Production Environment")
+        print(f"  Startup kit: {args.startup_kit}")
+        print(f"  Username: {args.username}")
+        env = ProdEnv(startup_kit_location=args.startup_kit, username=args.username, login_timeout=300)
     
     run = recipe.execute(env)
     print()
