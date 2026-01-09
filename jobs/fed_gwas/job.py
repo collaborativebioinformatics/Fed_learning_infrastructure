@@ -16,12 +16,17 @@ This code show to use NVIDIA FLARE Job Recipe to connect both Federated learning
 and run it under different environments
 """
 import argparse
+import os
+import subprocess
 import numpy as np
+import pandas as pd
 from nvflare.app_opt.pt.recipes.fedavg import FedAvgRecipe
 from nvflare.recipe import SimEnv, add_experiment_tracking, ProdEnv
 
-from nvflare.app_common.aggregators import ModelAggregator
+from nvflare.app_common.aggregators.model_aggregator import ModelAggregator
 from nvflare.client import FLModel
+
+from regenie2gwama import regenie2gwama
 
 
 class GWASMetaAggregator(ModelAggregator):
@@ -30,26 +35,85 @@ class GWASMetaAggregator(ModelAggregator):
     inverse-variance weighted meta-analysis during aggregation.
     """
 
-    def __init__(self):
+    def __init__(self, output_dir="./server_results"):
         super().__init__()
         self.client_betas = []
         self.client_ses = []
         self.received_params_type = None
+        self.output_dir = output_dir
+        self.gwama_input_file = os.path.join(self.output_dir, "gwama.in")
+        
+        # Create output directory if it doesn't exist
+        os.makedirs(self.output_dir, exist_ok=True)
+        
+        # Initialize gwama.in file (clear it if it exists)
+        with open(self.gwama_input_file, 'w') as f:
+            f.write("")  # Clear the file
+        
+        print(f"GWASMetaAggregator initialized. Results will be saved to: {self.output_dir}")
+        print(f"GWAMA input file will be created at: {self.gwama_input_file}")
 
     def accept_model(self, model: FLModel):
         """
         Called once per client.
         Expects model.params to contain GWAS summary statistics.
+        Also saves the results_file from metadata to disk.
         """
         if self.received_params_type is None:
             self.received_params_type = model.params_type
 
         params = model.params
-        beta = np.asarray(params["beta"])
-        se = np.asarray(params["se"])
+        
+        # Check if this is an error response
+        if params.get("SUCCESS") == False:
+            site_name = model.meta.get("site_name", "unknown_site")
+            error_msg = model.meta.get("error_message", "Unknown error")
+            print(f"ERROR: Client {site_name} failed with error: {error_msg}")
+            return
+        
+        # Extract metadata
+        site_name = model.meta.get("site_name", "unknown_site")
+        dataset_id = model.meta.get("dataset_id", "unknown_id")
+        results_file_content = model.meta.get("results_file", "")
+        
+        # Save the regenie results file to disk
+        if results_file_content:
+            output_filename = f"site{dataset_id}_{site_name}_regenie_step2_Phen1.regenie"
+            output_path = os.path.join(self.output_dir, output_filename)
+            
+            with open(output_path, 'w') as f:
+                f.write(results_file_content)
+            
+            print(f"Saved results from {site_name} (site{dataset_id}) to: {output_path}")
+            print(f"File size: {len(results_file_content)} bytes")
+            
+            # Convert regenie format to GWAMA format
+            gwama_filename = f"site{dataset_id}_{site_name}_gwama.txt"
+            gwama_path = os.path.join(self.output_dir, gwama_filename)
+            
+            try:
+                regenie2gwama(output_path, gwama_path, mode='or')
+                print(f"Converted to GWAMA format: {gwama_path}")
+                
+                # Append the GWAMA file path to gwama.in
+                with open(self.gwama_input_file, 'a') as f:
+                    f.write(f"{gwama_path}\n")
+                print(f"Added {gwama_path} to {self.gwama_input_file}")
+                
+                # Read beta and se from the GWAMA file for meta-analysis
+                gwama_df = pd.read_csv(gwama_path, sep="\t")
+                beta = gwama_df['BETA'].values
+                se = gwama_df['SE'].values
+                
+                self.client_betas.append(beta)
+                self.client_ses.append(se)
+                print(f"Extracted {len(beta)} variants with BETA and SE for meta-analysis")
+                
+            except Exception as e:
+                print(f"ERROR: Failed to convert {site_name} results to GWAMA format: {e}")
+        else:
+            print(f"WARNING: No results_file content received from {site_name}")
 
-        self.client_betas.append(beta)
-        self.client_ses.append(se)
 
     def aggregate_model(self) -> FLModel:
         """
@@ -71,6 +135,43 @@ class GWASMetaAggregator(ModelAggregator):
             "se": meta_se,
         }
 
+        print(f"Aggregated beta: {meta_beta}")
+        print(f"Aggregated se: {meta_se}")
+
+        # RUN GWAMA
+        # Meta-analysis using GWAMA
+        gwama_executable = "/home/ubuntu/GWAMA/GWAMA"
+        gwama_output_prefix = os.path.join(self.output_dir, "gwama")
+        
+        gwama_cmd = [
+            gwama_executable,
+            "-i", self.gwama_input_file,
+            "--output", gwama_output_prefix,
+            "--name_marker", "MARKERNAME",
+            "--name_ea", "EA",
+            "--name_nea", "NEA",
+            "--name_or", "OR",
+            "--name_or_95l", "OR_95L",
+            "--name_or_95u", "OR_95U"
+        ]
+        
+        print(f"Running GWAMA meta-analysis...")
+        print(f"Command: {' '.join(gwama_cmd)}")
+        print(f"Working directory: {os.getcwd()}")
+        print(f"Input file: {self.gwama_input_file}")
+        
+        result = subprocess.run(gwama_cmd, capture_output=True, text=True)
+        
+        if result.returncode == 0:
+            print(f"GWAMA completed successfully")
+            print(f"Output files should be at: {gwama_output_prefix}.*")
+        else:
+            print(f"GWAMA failed with return code: {result.returncode}")
+        
+        print(f"GWAMA stdout:\n{result.stdout}")
+        if result.stderr:
+            print(f"GWAMA stderr:\n{result.stderr}")
+
         return FLModel(
             params=aggregated_params,
             params_type=self.received_params_type,
@@ -87,7 +188,7 @@ class GWASMetaAggregator(ModelAggregator):
 
 def define_parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--n_clients", type=int, default=8)
+    parser.add_argument("--n_clients", type=int, default=5)
     parser.add_argument("--num_rounds", type=int, default=1)
 
     return parser.parse_args()
@@ -104,6 +205,7 @@ def main():
         min_clients=n_clients,
         num_rounds=num_rounds,
         train_script="client.py",
+        aggregator=GWASMetaAggregator(),
     )
     add_experiment_tracking(recipe, tracking_type="tensorboard")
 
