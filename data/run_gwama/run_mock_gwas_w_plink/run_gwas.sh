@@ -2,7 +2,7 @@
 
 set -eo pipefail
 
-export DATA_PATH="../simulated_sites"
+export DATA_PATH="../../simulated_sites"
 
 # recode case/control as 2/1 for plink logistic regression
 for site in 1 2; do
