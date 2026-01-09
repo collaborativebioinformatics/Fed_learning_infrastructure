@@ -186,7 +186,7 @@ Where:
 
 ---
 
-## 7. Optional: Run Regenie Per Site (Outside NVFLARE)
+## 7. Run Regenie Per Site (Outside NVFLARE)
 
 Run Regenie independently per site (not through NVFLARE) to verify all dependencies are working:
 
@@ -203,7 +203,16 @@ Monitor logs and outputs to confirm successful completion.
 
 ---
 
-## 8. Notes & Best Practices
+## 8. Run GWAS Meta-Analysis using GWAMA from GWAS results generated across sites
+
+- Convert REGENIE output to GWAMA input format
+- Create Input File List
+- Run GWAMA
+- Interpret Output
+
+---
+
+## 9. Notes & Best Practices
 
 * Use **one Brev instance per NVFLARE client**
 * Always run NVFLARE client inside a virtual environment
@@ -434,6 +443,165 @@ manhattan(results, chr="CHROM", bp="GENPOS", p="P", snp="ID")
 
 ---
 
+# Running GWAMA Meta-Analysis
+
+After each site has completed their local GWAS analysis using REGENIE, the results can be aggregated across sites using GWAMA (Genome-Wide Association Meta-Analysis) software.
+
+## Prerequisites: Download and Build GWAMA
+
+The `GWAMA` binary must exist on the server where meta-analysis is run (typically the NVFLARE server).
+
+```bash
+# Download GWAMA
+wget https://www.geenivaramu.ee/tools/GWAMA_v2.2.2.zip
+unzip -d GWAMA GWAMA_v2.2.2.zip
+cd GWAMA
+make
+chmod +x GWAMA
+cd ..
+```
+
+---
+
+## Meta-Analysis Workflow (Regenie Format)
+
+### Step 1: Convert REGENIE Output to GWAMA Format
+
+Each site's REGENIE results must be converted to GWAMA input format:
+
+```bash
+export SITE=1
+export DATA_PATH="../../resources/site${SITE}_gwas_results"
+export FILEPREFIX="regenie_step2_Phen1.regenie"
+
+python3 regenie_to_gwama.py  \
+    "${DATA_PATH}/${FILEPREFIX}" \
+    "site${SITE}_for_gwama.txt" \
+    "or"
+```
+
+Repeat for all 10 sites (site1 through site10).
+
+---
+
+### Step 2: Create Input File List
+
+Create a file listing all site-specific GWAMA input files:
+
+```bash
+# Example for all 10 sites
+cat > gwama.in << EOF
+site1_for_gwama.txt
+site2_for_gwama.txt
+site3_for_gwama.txt
+site4_for_gwama.txt
+site5_for_gwama.txt
+site6_for_gwama.txt
+site7_for_gwama.txt
+site8_for_gwama.txt
+site9_for_gwama.txt
+site10_for_gwama.txt
+EOF
+```
+
+---
+
+### Step 3: Run GWAMA
+
+Execute the meta-analysis across all sites:
+
+```bash
+./GWAMA/GWAMA \
+    -i gwama.in \
+    --output gwama \
+    --name_marker MARKERNAME \
+    --name_ea EA \
+    --name_nea NEA \
+    --name_or OR \
+    --name_or_95l OR_95L \
+    --name_or_95u OR_95U
+```
+
+---
+
+### Step 4: Interpret Output
+
+GWAMA produces `gwama.out` with the following columns:
+
+```
+rs_number	reference_allele	other_allele	eaf	OR	OR_se	OR_95L	OR_95U	z	p-value	_-log10_p-value	q_statistic	q_p-value	i2	n_studies	n_samples	effects
+SNP1	A	C	-9	0.981198	0.044274	0.894420	1.076395	-0.401764	0.687875	0.162490	-0.000000	1.000000	0.000000	1	-9	-
+SNP2	A	C	-9	1.104753	0.049437	1.007857	1.210964	2.127103	0.033432	1.475837	-0.000000	1.000000	0.000000	1	-9	+
+SNP3	A	C	-9	1.016838	0.058183	0.902800	1.145280	0.275127	0.783218	0.106117	0.000000	1.000000	nan	1	-9	+
+```
+
+**Key columns:**
+- `rs_number`: SNP identifier
+- `OR`: Meta-analyzed odds ratio
+- `OR_95L`, `OR_95U`: 95% confidence interval
+- `p-value`: Meta-analyzed p-value
+- `_-log10_p-value`: -log10 of p-value
+- `q_statistic`, `q_p-value`: Heterogeneity statistics (Cochran's Q test)
+- `i2`: I² statistic (% of variance due to heterogeneity)
+- `n_studies`: Number of sites contributing
+- `effects`: Direction of effect in each study (+/-)
+
+**Interpreting heterogeneity:**
+- `q_p-value < 0.05`: Significant heterogeneity across sites
+- `i2 > 50%`: Moderate to high heterogeneity
+- High heterogeneity suggests site-specific effects (e.g., population differences)
+
+For complete documentation, see: https://genomics.ut.ee/en/tools
+
+---
+
+## Testing with Mock Data
+
+For testing purposes, mock GWAS data can be generated and analyzed:
+
+### Generate Mock GWAS Data
+
+```bash
+cd scripts/run_gwama/run_mock_gwas_w_plink
+bash run_gwas.sh
+cd ..
+```
+
+### Create Input File List for Mock Data
+
+```bash
+cat > gwama.in << EOF
+run_mock_gwas_w_plink/gwas_site1_for_gwama.txt
+run_mock_gwas_w_plink/gwas_site2_for_gwama.txt
+EOF
+```
+
+### Run GWAMA on Mock Data
+
+```bash
+./GWAMA/GWAMA \
+    -i gwama.in \
+    --output gwama_mock \
+    --name_marker MARKERNAME \
+    --name_ea EA \
+    --name_nea NEA \
+    --name_or OR \
+    --name_or_95l OR_95L \
+    --name_or_95u OR_95U
+```
+
+### Example Mock Output
+
+```bash
+$ head gwama_mock.out
+rs_number	reference_allele	other_allele	eaf	OR	OR_se	OR_95L	OR_95U	z	p-value	_-log10_p-value	q_statistic	q_p-value	i2	n_studies	n_samples	effects
+SNP1	A	C	-9	0.884922	0.097971	0.692897	1.130162	-0.979582	0.327281	0.485080	0.248941	0.617821	0.000000	2	-9	--
+SNP2	A	C	-9	0.976209	0.136775	0.708129	1.345777	-0.146998	0.883115	0.053983	0.321468	0.570727	0.000000	2	-9	+-
+SNP3	A	C	-9	0.969469	0.122319	0.729723	1.287981	-0.213930	0.830592	0.080612	0.674754	0.411399	0.000000	2	-9	-+
+```
+
+---
+
 # For Administrators
 
 ## Generate New Site Data
@@ -449,7 +617,7 @@ manhattan(results, chr="CHROM", bp="GENPOS", p="P", snp="ID")
 **Note:** LDAK binary must be in `tools/` directory:
 ```bash
 # Download LDAK
-# This is for macOS only. Replace 'mac' with 'linux' for Linux.
+# This is for Mac OS only. Replace with Linux binary for other platforms.
 curl -L -o tools/ldak6.1.mac https://github.com/dougspeed/LDAK/raw/main/ldak6.1.mac
 chmod +x tools/ldak6.1.mac
 ```
