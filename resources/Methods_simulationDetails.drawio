@@ -1,0 +1,67 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/28.0.6 Chrome/138.0.7204.100 Electron/37.2.3 Safari/537.36" version="28.0.6">
+  <diagram name="Page-1" id="4fvodos3ELnafBmEt80q">
+    <mxGraphModel dx="1234" dy="814" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="DiE76k7sVuG-0oLzhx6--2" value="Generation of synthetic genotype, covariates, and phenotypes" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=24;" vertex="1" parent="1">
+          <mxGeometry y="23" width="680" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="DiE76k7sVuG-0oLzhx6--7" value="Number of SNPs" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry y="171" width="130" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="DiE76k7sVuG-0oLzhx6--8" value="Heritability" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry y="264" width="90" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="DiE76k7sVuG-0oLzhx6--9" value="Prevalence" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry y="310" width="90" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="DiE76k7sVuG-0oLzhx6--10" value="Number of causal SNPs" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry y="217" width="170" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="DiE76k7sVuG-0oLzhx6--11" value="Proportion of variance explained" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry y="448" width="220" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="DiE76k7sVuG-0oLzhx6--12" value="Causal effect size model and power" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry y="356" width="250" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="DiE76k7sVuG-0oLzhx6--13" value="450,000 - 520,000" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="240" y="171" width="140" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="DiE76k7sVuG-0oLzhx6--14" value="0.25" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="240" y="310" width="50" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="DiE76k7sVuG-0oLzhx6--15" value="1%" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="240" y="264" width="40" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="DiE76k7sVuG-0oLzhx6--16" value="20" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="240" y="217" width="40" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="DiE76k7sVuG-0oLzhx6--17" value="10%" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="240" y="448" width="50" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="DiE76k7sVuG-0oLzhx6--18" value="LDAK-Thin, power = -0.25" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="240" y="356" width="190" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="DiE76k7sVuG-0oLzhx6--24" value="Covariates" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry y="402" width="90" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="DiE76k7sVuG-0oLzhx6--25" value="Age and sex" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="240" y="402" width="100" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="DiE76k7sVuG-0oLzhx6--26" value="Number of observations" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry y="125" width="170" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="DiE76k7sVuG-0oLzhx6--27" value="88,000 - 110,000" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="240" y="125" width="130" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="DiE76k7sVuG-0oLzhx6--29" value="Software" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry y="79" width="80" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="DiE76k7sVuG-0oLzhx6--30" value="LDAK 6.1 [dougspeed.com]" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="240" y="79" width="190" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
