@@ -1,6 +1,10 @@
 #!/bin/bash
 # Run REGENIE Step 1 and Step 2 on a specific federated learning site using Docker
 
+# Exit immediately if any command fails
+set -e
+set -o pipefail
+
 # Check if site number provided
 if [ -z "$1" ]; then
     echo "Usage: ./scripts/run_regenie_site.sh <site_number>"
@@ -9,7 +13,20 @@ if [ -z "$1" ]; then
 fi
 
 SITE_NUM=$1
-SITE_DIR="./data/simulated_sites/site${SITE_NUM}"
+CONTAINER_NAME_STEP1="regenie_step1_site${SITE_NUM}"
+CONTAINER_NAME_STEP2="regenie_step2_site${SITE_NUM}"
+
+# Kill any previous containers for this specific site
+echo "Checking for previous containers..."
+if docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME_STEP1}$"; then
+    echo "Removing previous Step 1 container: ${CONTAINER_NAME_STEP1}"
+    docker rm -f ${CONTAINER_NAME_STEP1} || true
+fi
+if docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME_STEP2}$"; then
+    echo "Removing previous Step 2 container: ${CONTAINER_NAME_STEP2}"
+    docker rm -f ${CONTAINER_NAME_STEP2} || true
+fi
+SITE_DIR="/home/ubuntu/data/data/simulated_sites/site${SITE_NUM}"
 REGENIE_IMAGE="ghcr.io/rgcgithub/regenie/regenie:v4.1.gz"
 
 # Get absolute path for Docker volume mount
@@ -32,7 +49,7 @@ echo "Step 1: Building LOCO prediction model..."
 echo "This may take 15-30 minutes..."
 echo ""
 
-docker run --rm \
+docker run --rm --name ${CONTAINER_NAME_STEP1} \
   -v ${ABSOLUTE_SITE_DIR}:/data \
   ${REGENIE_IMAGE} \
   regenie \
@@ -45,11 +62,11 @@ docker run --rm \
   --lowmem \
   --out /data/regenie_step1
 
-# Check if Step 1 succeeded
-if [ $? -ne 0 ]; then
+STEP1_EXIT=$?
+if [ $STEP1_EXIT -ne 0 ]; then
     echo ""
-    echo "✗ Step 1 failed for Site ${SITE_NUM}"
-    exit 1
+    echo "✗ Step 1 failed for Site ${SITE_NUM} with exit code ${STEP1_EXIT}"
+    exit $STEP1_EXIT
 fi
 
 echo ""
@@ -67,7 +84,7 @@ echo "Step 2: Running genome-wide association testing..."
 echo "This may take 10-20 minutes..."
 echo ""
 
-docker run --rm \
+docker run --rm --name ${CONTAINER_NAME_STEP2} \
   -v ${ABSOLUTE_SITE_DIR}:/data \
   ${REGENIE_IMAGE} \
   regenie \
@@ -81,11 +98,11 @@ docker run --rm \
   --bsize 400 \
   --out /data/regenie_step2
 
-# Check if Step 2 succeeded
-if [ $? -ne 0 ]; then
+STEP2_EXIT=$?
+if [ $STEP2_EXIT -ne 0 ]; then
     echo ""
-    echo "✗ Step 2 failed for Site ${SITE_NUM}"
-    exit 1
+    echo "✗ Step 2 failed for Site ${SITE_NUM} with exit code ${STEP2_EXIT}"
+    exit $STEP2_EXIT
 fi
 
 echo ""
