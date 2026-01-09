@@ -1,7 +1,7 @@
 #!/bin/bash
 # Generate a single federated learning site with genomic data for Parkinson's disease
-# Usage: ./generate_federated_sites.sh <site_number>
-# Example: ./generate_federated_sites.sh 1
+# Usage: ./scripts/generate_federated_sites.sh <site_number>
+# Example: ./scripts/generate_federated_sites.sh 1
 
 samples=(100000 95000 110000 88000 105000 92000 98000 103000 97000 101000)
 nsnps=(500000 480000 520000 450000 510000 490000 505000 495000 515000 485000)
@@ -9,8 +9,8 @@ nsnps=(500000 480000 520000 450000 510000 490000 505000 495000 515000 485000)
 # Check if site number is provided
 if [ $# -eq 0 ]; then
   echo "Error: Site number required"
-  echo "Usage: $0 <site_number>"
-  echo "Example: $0 1"
+  echo "Usage: ./scripts/generate_federated_sites.sh <site_number>"
+  echo "Example: ./scripts/generate_federated_sites.sh 1"
   echo "Site number must be between 1 and 10"
   exit 1
 fi
@@ -23,7 +23,7 @@ if ! [[ "$site" =~ ^[0-9]+$ ]] || [ "$site" -lt 1 ] || [ "$site" -gt 10 ]; then
   exit 1
 fi
 
-# LDAK binary path - update this to your local path
+# LDAK binary path
 case "$(uname -s)" in
     Darwin)
         export OS_TYPE="mac"
@@ -32,15 +32,18 @@ case "$(uname -s)" in
         export OS_TYPE="linux"
         ;;
     *)
-        echo $"Unsupported OS. Please use macOS or Linux."
+        echo "Unsupported OS. Please use macOS or Linux."
         exit 1
         ;;
 esac
 
-LDAK="./ldak6.1.${OS_TYPE}"
+LDAK="./tools/ldak6.1.${OS_TYPE}"
+
+# Create output directory
+OUTPUT_DIR="./data/simulated_sites/site${site}"
+mkdir -p ${OUTPUT_DIR}
 
 idx=$((site-1))
-mkdir -p site${site}
 
 echo "========================================"
 echo "Federated Genomic Data Simulation"
@@ -52,21 +55,21 @@ echo "========================================"
 # Generate genotypes (auto-creates .covar file)
 echo "Step 1: Generating genotypes..."
 $LDAK \
-  --make-snps site${site}/site${site}_geno \
+  --make-snps ${OUTPUT_DIR}/site${site}_geno \
   --num-samples ${samples[$idx]} \
   --num-snps ${nsnps[$idx]}
 
 # Generate Parkinson's disease phenotypes
 echo "Step 2: Generating Parkinson's phenotypes..."
 $LDAK \
-  --make-phenos site${site}/site${site}_pheno \
-  --bfile site${site}/site${site}_geno \
+  --make-phenos ${OUTPUT_DIR}/site${site}_pheno \
+  --bfile ${OUTPUT_DIR}/site${site}_geno \
   --her 0.25 \
   --prevalence 0.01 \
   --num-causals 20 \
   --power -0.25 \
   --num-phenos 1 \
-  --covar site${site}/site${site}_geno.covar \
+  --covar ${OUTPUT_DIR}/site${site}_geno.covar \
   --covar-her 0.1
 
 echo ""
@@ -75,6 +78,6 @@ echo "Site ${site} generated successfully!"
 echo "========================================"
 echo ""
 echo "Generated files:"
-echo "  - Genotypes: site${site}/site${site}_geno.bed/bim/fam"
-echo "  - Phenotypes: site${site}/site${site}_pheno.pheno"
-echo "  - Covariates: site${site}/site${site}_geno.covar"
+echo "  - Genotypes: ${OUTPUT_DIR}/site${site}_geno.bed/bim/fam"
+echo "  - Phenotypes: ${OUTPUT_DIR}/site${site}_pheno.pheno"
+echo "  - Covariates: ${OUTPUT_DIR}/site${site}_geno.covar"
