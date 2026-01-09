@@ -217,6 +217,7 @@ __marimo__/
 
 # Misc.
 .DS_Store
+__MACOSX
 
 # Genomic simulation data (large files - do not commit)
 data/simulated_sites/site*/
@@ -233,3 +234,6 @@ data/simulated_sites/site*/
 ldak6.1.mac
 ldak*.linux
 ldak*.mac
+
+# GWAMA
+scripts/run_gwama/GWAMA*
